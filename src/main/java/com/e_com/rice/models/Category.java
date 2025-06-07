@@ -1,22 +1,39 @@
 package com.e_com.rice.models;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+
+@Entity(name = "categories")
 public class Category {
-    private Long Id;
-    private String Category;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long categoryId;
 
-    public Long getId() {
-        return Id;
+    private String categoryName;
+
+    public Category() {
     }
 
-    public void setId(Long id) {
-        Id = id;
+    public Category(Long categoryId, String categoryName) {
+        this.categoryId = categoryId;
+        this.categoryName = categoryName;
     }
 
-    public String getCategory() {
-        return Category;
+    public Long getCategoryId() {
+        return categoryId;
     }
 
-    public void setCategory(String category) {
-        Category = category;
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
     }
 }

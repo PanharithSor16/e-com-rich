@@ -7,49 +7,55 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Controller
-@RequestMapping("/api/v1")
+@RestController
+@RequestMapping("/api")
 public class CategoryController {
+
     @Autowired
     private CategoryService categoryService;
-    @Autowired
-    private Category category;
 
-    @GetMapping ("/get-category")
-    public ResponseEntity<List<Category>> getCategory(){
-
-        List<Category> CategoryList = categoryService.getCategories();
-        return ResponseEntity.ok(CategoryList);
+    @GetMapping("/public/categories")
+    //@RequestMapping(value = "/public/categories", method = RequestMethod.GET)
+    public ResponseEntity<List<Category>> getAllCategories(){
+        List<Category> categories = categoryService.getAllCategories();
+        return new ResponseEntity<>(categories, HttpStatus.OK);
     }
-    @PostMapping("/create-category")
+
+    @PostMapping("/public/categories")
+    //@RequestMapping(value = "/public/categories", method = RequestMethod.POST)
     public ResponseEntity<String> createCategory(@RequestBody Category category){
-
-        category.setCategory(category.getCategory());
-        category.setId(category.getId());
-        return ResponseEntity.ok( "Success");
+        categoryService.createCategory(category);
+        return new ResponseEntity<>("Category added successfully", HttpStatus.CREATED);
     }
-    @GetMapping("category/{id}")
-    public ResponseEntity<?> getCategoryById(@PathVariable long id)  {
-        Optional<Category> categories = categoryService.getCategories().stream()
-                .filter(e ->Objects.equals(e.getId(), id)).findFirst();
-        if (categories.isPresent()){
-            return ResponseEntity.ok(categories.get());
-        }
-     return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Category with ID "+ id + " Not Found");
-    }
-    @PutMapping("/update-category/{id}")
-    public ResponseEntity<String> updateCategory(@PathVariable Long id, @RequestBody Category category1){
-        Optional<Category> categories = categoryService.getCategories().stream().filter(e -> Objects.equals(e.getId(), id)).findFirst();
-        if (categories.isPresent()){
-            Category exisingCategory = categories.get();
 
+    @DeleteMapping("/admin/categories/{categoryId}")
+    public ResponseEntity<String> deleteCategory(@PathVariable Long categoryId){
+        try {
+            String status = categoryService.deleteCategory(categoryId);
+            //return new ResponseEntity<>(status, HttpStatus.OK);
+            //return ResponseEntity.ok(status);
+            return ResponseEntity.status(HttpStatus.OK).body(status);
+        } catch (ResponseStatusException e){
+            return new ResponseEntity<>(e.getReason(), e.getStatusCode());
         }
-        return ResponseEntity.ok( "Update Success");
+    }
+
+
+    @PutMapping("/public/categories/{categoryId}")
+    public ResponseEntity<String> updateCategory(@RequestBody Category category,
+                                                 @PathVariable Long categoryId){
+        try{
+            Category savedCategory = categoryService.updateCategory(category, categoryId);
+            return new ResponseEntity<>("Category with category id: " + categoryId, HttpStatus.OK);
+        } catch (ResponseStatusException e){
+            return new ResponseEntity<>(e.getReason(), e.getStatusCode());
+        }
     }
 }

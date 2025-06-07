@@ -1,16 +1,15 @@
 package com.e_com.rice.services;
 
 import com.e_com.rice.models.Category;
-import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@Service
-public class CategoryService {
-    private List<Category> categories = new ArrayList<>();
 
-    public List<Category> getCategories() {
-        return categories;
-    }
+public interface   CategoryService {
+    List<Category> getAllCategories();
+    void createCategory(Category category);
+
+    String deleteCategory(Long categoryId);
+
+    Category updateCategory(Category category, Long categoryId);
 }
