@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Service
 public class CategoryServiceImpl implements  CategoryService {
-    private Long nextId = 1l;
+
     @Autowired
     private CategoryRepository categoryRepository;
 
@@ -23,38 +23,27 @@ public class CategoryServiceImpl implements  CategoryService {
 
     @Override
     public void createCategory(Category category) {
-        category.setCategoryId(nextId++);
+
         categoryRepository.save(category);
     }
 
     @Override
     public String deleteCategory(Long categoryId) {
-        List<Category> categories = categoryRepository.findAll();
-
-        Category category = categories.stream()
-                .filter(c -> c.getCategoryId().equals(categoryId))
-                .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found"));
-
-        categoryRepository.delete(category);
+        Category deletedCategory = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, " NOT Found"));
+        categoryRepository.delete(deletedCategory);
         return "Category with categoryId: " + categoryId + " deleted successfully !!";
     }
 
     @Override
     public Category updateCategory(Category category, Long categoryId) {
-        List<Category> categories = categoryRepository.findAll();
+        Category savaCategory = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, " NOT Found"));
 
-        Optional<Category> optionalCategory = categories.stream()
-                .filter(c -> c.getCategoryId().equals(categoryId))
-                .findFirst();
+        category.setCategoryId(categoryId);
+       // category.setCategoryName(category.getCategoryName());
+        savaCategory = categoryRepository.save(category);
 
-        if(optionalCategory.isPresent()){
-            Category existingCategory = optionalCategory.get();
-            existingCategory.setCategoryName(category.getCategoryName());
-            Category savedCategory = categoryRepository.save(existingCategory);
-            return savedCategory;
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found");
-        }
+        return  savaCategory;
     }
 }
