@@ -1,5 +1,7 @@
 package com.e_com.rice.services;
 
+import com.e_com.rice.exception.APIException;
+import com.e_com.rice.exception.ResourceNotFoundException;
 import com.e_com.rice.models.Category;
 import com.e_com.rice.repositories.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,19 +20,24 @@ public class CategoryServiceImpl implements  CategoryService {
 
     @Override
     public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
+        List<Category> categories = categoryRepository.findAll();
+        if (categories.isEmpty())
+            throw new APIException("No category create till now. ");
+        return categories;
     }
 
     @Override
     public void createCategory(Category category) {
-
+        Category saveCategory = categoryRepository.findByCategoryName(category.getCategoryName());
+        if (saveCategory != null)
+            throw new APIException(" Category with the name " + category.getCategoryName() + " already exists !!!");
         categoryRepository.save(category);
     }
 
     @Override
     public String deleteCategory(Long categoryId) {
         Category deletedCategory = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, " NOT Found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "category", categoryId));
         categoryRepository.delete(deletedCategory);
         return "Category with categoryId: " + categoryId + " deleted successfully !!";
     }
@@ -38,7 +45,7 @@ public class CategoryServiceImpl implements  CategoryService {
     @Override
     public Category updateCategory(Category category, Long categoryId) {
         Category savaCategory = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, " NOT Found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "category", categoryId));
 
         category.setCategoryId(categoryId);
        // category.setCategoryName(category.getCategoryName());
