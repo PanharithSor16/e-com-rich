@@ -1,6 +1,7 @@
 package com.e_com.rice.exception;
 
 
+import com.e_com.rice.payload.APIResponse;
 import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,14 +28,15 @@ public class MyGlobalExceptionHandler {
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<String> myResourceNotFoundException(ResourceNotFoundException ex){
-        String message = ex.getMessage();
-        return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
+    public ResponseEntity<APIResponse> myResourceNotFoundException(ResourceNotFoundException ex){
+        APIResponse apiResponse = new APIResponse( ex.getMessage(), false);
+
+        return new ResponseEntity<>(apiResponse, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(APIException.class)
-    public ResponseEntity<String> myAPIException(APIException ex){
-        String message = ex.getMessage();
-        return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+    public ResponseEntity<APIResponse> myAPIException(APIException ex){
+        APIResponse apiResponse = new APIResponse( ex.getMessage(), false);
+        return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
     }
 }
